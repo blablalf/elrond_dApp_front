@@ -1,16 +1,20 @@
-# @elrondnetwork/dapp-template
+# elrond mint dApp
+
+## Source used for this project :
+___
+### Elrond dApp Template
 
 The **Elrond dApp Template**, built using [React.js](https://reactjs.org/) and [Typescript](https://www.typescriptlang.org/).
 It's a basic implementation of [@elrondnetwork/dapp-core](https://www.npmjs.com/package/@elrondnetwork/dapp-core), providing the basics for Elrond authentication and TX signing.
 
 See [Dapp template](https://dapp-template.elrond.com/) for live demo.
-
-## Requirements
+___
+### Requirements
 
 - Node.js version 12.16.2+
 - Npm version 6.14.4+
 
-## Getting Started
+### Getting Started
 
 The dapp is a client side only project and is built using the [Create React App](https://create-react-app.dev) scripts.
 
@@ -54,23 +58,3 @@ To build the project run:
 ```bash
 npm run build
 ```
-
-## Roadmap
-
-See the [open issues](https://github.com/ElrondNetwork/dapp-template/issues) for a list of proposed features (and known issues).
-
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-One can contribute by creating _pull requests_, or by opening _issues_ for discovered bugs or desired features.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Developers
-
-The [Elrond Team](https://elrond.com/team/).

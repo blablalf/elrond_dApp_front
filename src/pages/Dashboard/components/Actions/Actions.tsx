@@ -1,84 +1,80 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useGetPendingTransactions } from '@elrondnetwork/dapp-core/hooks/transactions/useGetPendingTransactions';
 import { sendTransactions } from '@elrondnetwork/dapp-core/services';
 import { refreshAccount } from '@elrondnetwork/dapp-core/utils';
-import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import {
+  BigUIntValue,
+  BooleanValue,
+  ContractCallPayloadBuilder,
+  ContractFunction,
+  StringValue,
+  TypedValue
+} from '@elrondnetwork/erdjs';
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import moment from 'moment';
+
 import { contractAddress } from 'config';
-import { useGetTimeToPong, useGetPingAmount } from './helpers';
+
+function stringToHex(str: string): string {
+  return (
+    '0x' +
+    str
+      .split('')
+      .map((char: string) =>
+        ('000' + char.charCodeAt(0).toString(16)).slice(-4)
+      )
+      .join('')
+  );
+}
 
 export const Actions = () => {
   const { hasPendingTransactions } = useGetPendingTransactions();
-  const getTimeToPong = useGetTimeToPong();
-  const pingAmount = useGetPingAmount();
-
-  const [secondsLeft, setSecondsLeft] = useState<number>();
-  const [hasPing, setHasPing] = useState<boolean>();
   const /*transactionSessionId*/ [, setTransactionSessionId] = useState<
       string | null
     >(null);
 
-  const mount = () => {
-    if (secondsLeft) {
-      const interval = setInterval(() => {
-        setSecondsLeft((existing) => {
-          if (existing) {
-            return existing - 1;
-          } else {
-            clearInterval(interval);
-            return 0;
-          }
-        });
-      }, 1000);
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  };
+  const setBaseDatas = async () => {
+    const args: TypedValue[] = [
+      new StringValue(
+        stringToHex('QmWij4TM2BJ2CNHrdUYam6imQxQdL3dxL9GiUwjHGQajC1')
+      ),
+      new StringValue(
+        stringToHex('QmTRUExHZfnUQKQM4x9AbZYAjhHC8687DrPdiF7bJUuzQB')
+      ),
+      //new NumericalValue(new U32Type(), 0.1), // for decimals values
+      new BigUIntValue(1),
+      new BigUIntValue(1),
+      new BigUIntValue(15),
+      new BigUIntValue(3000000000000000000),
+      new StringValue(stringToHex('jpeg')),
+      new StringValue(stringToHex('')),
+      new StringValue(stringToHex('')),
+      new BooleanValue(false)
+      //new AddressValue(new Address(address.trim())) // If u want ot add a segwit or endoded address
+    ];
 
-  useEffect(mount, [hasPing]);
+    const data = new ContractCallPayloadBuilder()
+      .setFunction(new ContractFunction('setBaseDatas'))
+      .setArgs(args)
+      .build();
 
-  const setSecondsRemaining = async () => {
-    const secondsRemaining = await getTimeToPong();
+    // data could also be a string like this : 'setBaseDatas@516D57696A34544D32424A32434E4872645559616D36696D517851644C3364784C39476955776A484751616A4331@516D5452554578485A666E55514B514D34783941625A59416A6848433836383744725064694637624A55757A5142@01@01@0F@4563918244F40000@6A706567@@@00'
 
-    switch (secondsRemaining) {
-      case undefined:
-      case null:
-        setHasPing(true);
-        break;
-      case 0:
-        setSecondsLeft(0);
-        setHasPing(false);
-        break;
-      default: {
-        setSecondsLeft(secondsRemaining);
-        setHasPing(false);
-        break;
-      }
-    }
-  };
-
-  useEffect(() => {
-    setSecondsRemaining();
-  }, [hasPendingTransactions]);
-
-  const sendPingTransaction = async () => {
-    const pingTransaction = {
-      value: pingAmount,
-      data: 'ping',
+    const setBaseDatasTransaction = {
+      value: '50000000000000000',
+      data: data,
       receiver: contractAddress,
       gasLimit: '60000000'
     };
     await refreshAccount();
 
     const { sessionId /*, error*/ } = await sendTransactions({
-      transactions: pingTransaction,
+      transactions: setBaseDatasTransaction,
       transactionsDisplayInfo: {
-        processingMessage: 'Processing Ping transaction',
-        errorMessage: 'An error has occured during Ping',
-        successMessage: 'Ping transaction successful'
+        processingMessage: 'Processing setBaseDatas transaction',
+        errorMessage: 'An error has occured during setBaseDatas',
+        successMessage: 'setBaseDatas transaction successful'
       },
       redirectAfterSign: false
     });
@@ -86,84 +82,22 @@ export const Actions = () => {
       setTransactionSessionId(sessionId);
     }
   };
-
-  const sendPongTransaction = async () => {
-    const pongTransaction = {
-      value: '0',
-      data: 'pong',
-      receiver: contractAddress,
-      gasLimit: '60000000'
-    };
-    await refreshAccount();
-
-    const { sessionId /*, error*/ } = await sendTransactions({
-      transactions: pongTransaction,
-      transactionsDisplayInfo: {
-        processingMessage: 'Processing Pong transaction',
-        errorMessage: 'An error has occured during Pong',
-        successMessage: 'Pong transaction successful'
-      },
-      redirectAfterSign: false
-    });
-    if (sessionId != null) {
-      setTransactionSessionId(sessionId);
-    }
-  };
-
-  const pongAllowed = secondsLeft === 0 && !hasPendingTransactions;
-  const notAllowedClass = pongAllowed ? '' : 'not-allowed disabled';
-
-  const timeRemaining = moment()
-    .startOf('day')
-    .seconds(secondsLeft || 0)
-    .format('mm:ss');
 
   return (
     <div className='d-flex mt-4 justify-content-center'>
-      {hasPing !== undefined && (
+      {!hasPendingTransactions ? (
+        <div className='action-btn' onClick={setBaseDatas}>
+          <button className='btn'>
+            <FontAwesomeIcon icon={faArrowDown} className='text-primary' />
+          </button>
+          <a href='/' className='text-white text-decoration-none'>
+            Set Base Datas
+          </a>
+        </div>
+      ) : (
         <>
-          {hasPing && !hasPendingTransactions ? (
-            <div className='action-btn' onClick={sendPingTransaction}>
-              <button className='btn'>
-                <FontAwesomeIcon icon={faArrowUp} className='text-primary' />
-              </button>
-              <a href='/' className='text-white text-decoration-none'>
-                Ping
-              </a>
-            </div>
-          ) : (
-            <>
-              <div className='d-flex flex-column'>
-                <div
-                  {...{
-                    className: `action-btn ${notAllowedClass}`,
-                    ...(pongAllowed ? { onClick: sendPongTransaction } : {})
-                  }}
-                >
-                  <button className={`btn ${notAllowedClass}`}>
-                    <FontAwesomeIcon
-                      icon={faArrowDown}
-                      className='text-primary'
-                    />
-                  </button>
-                  <span className='text-white'>
-                    {pongAllowed ? (
-                      <a href='/' className='text-white text-decoration-none'>
-                        Pong
-                      </a>
-                    ) : (
-                      <>Pong</>
-                    )}
-                  </span>
-                </div>
-                {!pongAllowed && !hasPendingTransactions && (
-                  <span className='opacity-6 text-white'>
-                    {timeRemaining} until able to Pong
-                  </span>
-                )}
-              </div>
-            </>
-          )}
+          You have a pending transaction, please wait until it is finished and
+          retry
         </>
       )}
     </div>
