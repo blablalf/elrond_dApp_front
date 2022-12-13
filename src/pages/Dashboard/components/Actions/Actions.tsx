@@ -58,7 +58,7 @@ export const Actions = () => {
             <FontAwesomeIcon icon={faArrowDown} className='text-primary' />
           </button>
           <a href='/' className='text-white text-decoration-none'>
-            Set Base Datas
+            Mint
           </a>
         </div>
       ) : (
