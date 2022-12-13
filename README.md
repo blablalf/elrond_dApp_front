@@ -1,5 +1,11 @@
 # elrond mint dApp
 
+## Purpose of this project
+
+The purpose of this project is to have a front that calls a specific contract endpoind.
+The specific endpoint is the mint endpoint of a custom elven-tools contract manually deployed with erdpy.
+The contract source code will be available later but you can see the abi into the project source.
+
 ## Source used for this project :
 ___
 ### Elrond dApp Template
