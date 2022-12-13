@@ -39,9 +39,9 @@ export const Actions = () => {
     const { sessionId /*, error*/ } = await sendTransactions({
       transactions: setBaseDatasTransaction,
       transactionsDisplayInfo: {
-        processingMessage: 'Processing setBaseDatas transaction',
-        errorMessage: 'An error has occured during setBaseDatas',
-        successMessage: 'setBaseDatas transaction successful'
+        processingMessage: 'Processing Mint transaction',
+        errorMessage: 'An error has occured during Mint',
+        successMessage: 'Mint transaction successful'
       },
       redirectAfterSign: false
     });
